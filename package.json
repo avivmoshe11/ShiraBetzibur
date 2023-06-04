@@ -9,7 +9,7 @@
     "watch-ts": "rimraf ./dist && tsc -w",
     "dev": "nodemon ./dist/index.js",
     "build": "rimraf ./dist && tsc",
-    "start": "tsc && node ./dist/index.js"
+    "start": "node ./dist/index.js"
   },
   "keywords": [],
   "author": "",
