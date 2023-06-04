@@ -5,11 +5,11 @@ import loadEvents from './src/Handlers/event-handler.js';
 import './src/Handlers/error-handlers.js';
 dotenv.config();
 
-const { Guilds, GuildMembers, GuildMessages, MessageContent, GuildScheduledEvents } = GatewayIntentBits;
+const { Guilds, GuildMembers, GuildMessages, MessageContent, GuildScheduledEvents, GuildVoiceStates } = GatewayIntentBits;
 const { User, Message, GuildMember, ThreadMember } = Partials;
 
 const client = new Client({
-  intents: [Guilds, GuildMembers, GuildMessages, MessageContent, GuildScheduledEvents],
+  intents: [Guilds, GuildMembers, GuildMessages, MessageContent, GuildScheduledEvents, GuildVoiceStates],
   partials: [User, Message, GuildMember, ThreadMember]
 });
 
