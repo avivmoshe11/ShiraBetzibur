@@ -2,7 +2,7 @@ import embedUtilities from './embed-utilities.js';
 import channels from '../Config/channels.js';
 import { Client, GuildTextBasedChannel } from 'discord.js';
 import { RoleLogger } from '../Interfaces/logger-interfaces.js';
-import EmbedObject from '../Interfaces/embed-interfaces.js';
+import { EmbedObject } from '../Interfaces/embed-interfaces.js';
 
 export function log(client: Client, details: EmbedObject) {
   const logChannel: GuildTextBasedChannel = client.guilds.cache.first()?.channels.cache.get(channels.log.id) as GuildTextBasedChannel;
