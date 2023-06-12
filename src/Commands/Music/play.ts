@@ -6,7 +6,6 @@ export default {
   data: new SlashCommandBuilder()
     .setName('play')
     .setDescription('play')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addStringOption((option) => option.setName('song-request').setDescription('add a song name or a youtube link').setRequired(true)),
 
   async execute(interaction: any, client: Client) {

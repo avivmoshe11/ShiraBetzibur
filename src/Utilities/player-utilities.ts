@@ -14,6 +14,7 @@ const queue: QueueEntry[] = [];
 export async function play() {
   if (player.state.status != AudioPlayerStatus.Idle) return;
   const song = queue[0];
+
   if (song) {
     connection?.subscribe(player);
     player.play(song.resource);
@@ -107,6 +108,47 @@ export function destroy() {
   connection?.destroy();
   connection = undefined;
   requestedChannel = undefined;
+  queue.splice(0);
+  player.stop(true);
+}
+
+export function skip() {
+  player.stop(true);
+}
+
+export function pause() {
+  if (player.state.status == AudioPlayerStatus.Playing) {
+    return player.pause();
+  }
+  return false;
+}
+
+export function unpause() {
+  if (player.state.status == AudioPlayerStatus.Paused) {
+    return player.unpause();
+  }
+  return false;
+}
+
+export function checkCredibility(interaction: any) {
+  const voiceChannel = interaction.member.voice.channel;
+
+  if (!voiceChannel) {
+    interaction.reply({ content: 'You are not in a voice channel.' });
+    return;
+  }
+
+  if (!connection) {
+    interaction.reply({ content: 'Bot is not playing anything.' });
+    return;
+  }
+
+  if (connection.joinConfig.channelId != voiceChannel.id) {
+    interaction.reply({ content: 'You are not in the same channel as the bot.' });
+    return;
+  }
+
+  return true;
 }
 
 player.on(AudioPlayerStatus.Idle, () => {
@@ -119,5 +161,10 @@ export default {
   connect,
   getConnection,
   getSong,
-  addResourceToQueue
+  addResourceToQueue,
+  destroy,
+  skip,
+  checkCredibility,
+  pause,
+  unpause
 };
