@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits, Client } from 'discord.js';
+import { SlashCommandBuilder, Client } from 'discord.js';
 import playerUtilities from '../../Utilities/player-utilities.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
 
