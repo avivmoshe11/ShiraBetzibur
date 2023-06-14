@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, Client } from 'discord.js';
 import playerUtilities from '../../Utilities/player-utilities.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
+import { PlayerMode } from '../../Interfaces/player-interfaces.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -9,6 +10,8 @@ export default {
     .addStringOption((option) => option.setName('song-request').setDescription('add a song name or a youtube link').setRequired(true)),
 
   async execute(interaction: any, client: Client) {
+    if (playerUtilities.getPlayerMode() == PlayerMode.TTS) return interaction.reply({ content: "Bot is currently in 'TTS' mode." });
+
     const voiceChannel = interaction.member.voice.channel;
     if (!voiceChannel) return interaction.reply({ content: 'You are not in a voice channel.' });
 

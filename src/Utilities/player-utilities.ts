@@ -1,28 +1,46 @@
 import { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnection } from '@discordjs/voice';
 import ytdl from 'ytdl-core';
 import ytSearch from 'yt-search';
+import googleTTSApi from 'google-tts-api';
+import { createWriteStream, unlink } from 'fs';
+import { pipeline } from 'stream';
+import axios from 'axios';
 import { TextBasedChannel, User, VoiceBasedChannel } from 'discord.js';
-import { QueueEntry, Song } from '../Interfaces/player-interfaces';
+import { SongQueueEntry, Song, TTSQueueEntry, PlayerMode } from '../Interfaces/player-interfaces.js';
 import embedUtilities from './embed-utilities.js';
-import { AdvancedEmbedObject, EmbedField } from '../Interfaces/embed-interfaces';
+import { AdvancedEmbedObject, EmbedField } from '../Interfaces/embed-interfaces.js';
+//import { PlayerMode } from '../Types/player.js';
 
 class PlayerUtilities {
   private connection: VoiceConnection | undefined;
   private requestedChannel: TextBasedChannel | undefined;
   private player = createAudioPlayer();
-  private queue: QueueEntry[];
+  private songQueue: SongQueueEntry[];
+  private ttsQueue: TTSQueueEntry[];
+  private ttsNumber: number = 0;
+  private playerMode: number;
 
   constructor() {
-    this.queue = [];
+    this.songQueue = [];
+    this.ttsQueue = [];
+    this.playerMode = PlayerMode.Sleep;
+
     this.player.on(AudioPlayerStatus.Idle, () => {
-      this.queue.shift();
-      this.play();
+      if (this.songQueue.length) {
+        this.songQueue.shift();
+        this.play();
+      } else if (this.ttsQueue.length) {
+        this.removeAudioFile(this.ttsQueue[0]?.path);
+        this.ttsQueue.shift();
+        this.playTTS();
+      }
     });
   }
 
   async play() {
     if (this.player.state.status != AudioPlayerStatus.Idle) return;
-    const song = this.queue[0];
+    if (this.playerMode == PlayerMode.Sleep) this.playerMode = PlayerMode.Music;
+    const song = this.songQueue[0];
 
     if (song) {
       this.connection?.subscribe(this.player);
@@ -83,7 +101,7 @@ class PlayerUtilities {
   addResourceToQueue(song: Song) {
     const stream = ytdl(song.url, { filter: 'audioonly' });
     const queueEntry = { ...song, resource: createAudioResource(stream) };
-    this.queue.push(queueEntry);
+    this.songQueue.push(queueEntry);
   }
 
   formatTimeStamp(seconds: number) {
@@ -94,7 +112,7 @@ class PlayerUtilities {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 
-  modifySongToEmbedFormat(details: QueueEntry) {
+  modifySongToEmbedFormat(details: SongQueueEntry) {
     const { title, author, length, requestedBy, thumbnail, url } = details;
 
     const subObj: EmbedField[] = [
@@ -117,7 +135,10 @@ class PlayerUtilities {
     this.connection?.destroy();
     this.connection = undefined;
     this.requestedChannel = undefined;
-    this.queue.splice(0);
+    this.songQueue.splice(0);
+    this.ttsQueue.splice(0);
+    this.ttsNumber = 0;
+    this.playerMode = PlayerMode.Sleep;
     this.skip();
   }
 
@@ -158,6 +179,53 @@ class PlayerUtilities {
     }
 
     return true;
+  }
+
+  async playTTS() {
+    if (this.player.state.status != AudioPlayerStatus.Idle) return;
+    if (this.playerMode == PlayerMode.Sleep) this.playerMode = PlayerMode.TTS;
+    const entry = this.ttsQueue[0];
+
+    if (entry) {
+      this.connection?.subscribe(this.player);
+      this.player.play(entry.audio);
+    } else {
+      this.destroy();
+    }
+  }
+
+  async addResourceToTTSQueue(input: string) {
+    const audioFilePath = await this.generateTTS(input);
+    const resource = createAudioResource(audioFilePath);
+    this.ttsQueue.push({ path: audioFilePath, audio: resource });
+  }
+
+  removeAudioFile(path: string) {
+    unlink(path, (err) => {
+      if (err) return false;
+      return true;
+    });
+  }
+
+  async generateTTS(input: string) {
+    const audioFilePath = `./dist/src/Audio/tts_audio${this.ttsNumber}.mp3`;
+    const hebrewRegex = /^[\u0590-\u05FF\s0-9,.?!'"():;{}\[\]\-]*$/;
+    const url = googleTTSApi.getAudioUrl(input, { lang: hebrewRegex.test(input) ? 'he' : 'en', slow: false });
+    const response = await axios.get(url, { responseType: 'stream' });
+    const writeStream = createWriteStream(audioFilePath);
+
+    if (
+      pipeline(response.data, writeStream, (error) => {
+        if (error) return false;
+        return true;
+      })
+    )
+      this.ttsNumber += 1;
+    return audioFilePath;
+  }
+
+  getPlayerMode() {
+    return this.playerMode;
   }
 }
 
