@@ -100,7 +100,7 @@ class PlayerUtilities {
 
   addResourceToQueue(song: Song) {
     const stream = ytdl(song.url, { filter: 'audioonly' });
-    const queueEntry = { ...song, resource: createAudioResource(stream) };
+    const queueEntry: SongQueueEntry = { ...song, resource: createAudioResource(stream) };
     this.songQueue.push(queueEntry);
   }
 
@@ -195,9 +195,9 @@ class PlayerUtilities {
   }
 
   async addResourceToTTSQueue(input: string) {
-    const audioFilePath = await this.generateTTS(input);
-    const resource = createAudioResource(audioFilePath);
-    this.ttsQueue.push({ path: audioFilePath, audio: resource });
+    const { path, stream } = await this.generateTTS(input);
+    const resource = createAudioResource(stream);
+    this.ttsQueue.push({ path: path, audio: resource });
   }
 
   removeAudioFile(path: string) {
@@ -221,7 +221,7 @@ class PlayerUtilities {
       })
     )
       this.ttsNumber += 1;
-    return audioFilePath;
+    return { path: audioFilePath, stream: response.data };
   }
 
   getPlayerMode() {
