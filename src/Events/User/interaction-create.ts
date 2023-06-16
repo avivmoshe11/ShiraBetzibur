@@ -1,4 +1,5 @@
 import { CommandInteraction } from 'discord.js';
+
 export default {
   name: 'interactionCreate',
   async execute(interaction: CommandInteraction, client: any) {

@@ -1,4 +1,7 @@
+import client from '../../index.js';
+
 export default {
+  references: client.guilds.cache.first()?.channels.cache,
   log: {
     name: 'log',
     type: 'text',

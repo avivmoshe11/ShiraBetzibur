@@ -25,6 +25,6 @@ export default {
     const connection = playerUtilities.getConnection();
     if (!connection) playerUtilities.connect(voiceChannel, interaction.channel);
 
-    if (AudioPlayerStatus.Idle) playerUtilities.play();
+    if (AudioPlayerStatus.Idle) playerUtilities.play(PlayerMode.Music);
   }
 };

@@ -23,6 +23,6 @@ export default {
 
     interaction.reply({ content: `Enqueueing ${query}` });
 
-    if (AudioPlayerStatus.Idle) await playerUtilities.playTTS();
+    if (AudioPlayerStatus.Idle) await playerUtilities.play(PlayerMode.TTS);
   }
 };

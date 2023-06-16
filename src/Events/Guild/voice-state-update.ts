@@ -1,5 +1,5 @@
-import { Client, VoiceState } from 'discord.js';
 import playerUtilities from '../../Utilities/player-utilities.js';
+import { Client, VoiceState } from 'discord.js';
 
 export default {
   name: 'voiceStateUpdate',

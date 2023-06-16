@@ -1,6 +1,6 @@
+import loggerUtilities from '../../Utilities/logger-utilities.js';
 import { Client, GuildMember } from 'discord.js';
 import roles from '../../Config/roles.js';
-import loggerUtilities from '../../Utilities/logger-utilities.js';
 
 export default {
   name: 'guildMemberAdd',

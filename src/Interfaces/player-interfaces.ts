@@ -13,11 +13,6 @@ export interface SongQueueEntry extends Song {
   resource: AudioResource;
 }
 
-export interface TTSQueueEntry {
-  audio: AudioResource;
-  path: string;
-}
-
 export enum PlayerMode {
   Sleep = 0,
   TTS = 1,

@@ -1,17 +1,17 @@
-import embedUtilities from './embed-utilities.js';
-import channels from '../Config/channels.js';
-import { Client, GuildTextBasedChannel } from 'discord.js';
 import { RoleLogger } from '../Interfaces/logger-interfaces.js';
 import { EmbedObject } from '../Interfaces/embed-interfaces.js';
+import { Client, GuildTextBasedChannel } from 'discord.js';
+import embedUtilities from './embed-utilities.js';
+import channels from '../Config/channels.js';
 
 class LoggerUtilities {
-  log(client: Client, details: EmbedObject) {
-    const logChannel: GuildTextBasedChannel = client.guilds.cache.first()?.channels.cache.get(channels.log.id) as GuildTextBasedChannel;
+  log(client: Client, details: EmbedObject): void {
+    const logChannel = channels.references?.get(channels.log.id) as GuildTextBasedChannel;
 
     logChannel.send({ embeds: [embedUtilities.createEmbed(details)] });
   }
 
-  formatRoleLogger(details: RoleLogger) {
+  formatRoleLogger(details: RoleLogger): EmbedObject {
     const obj: EmbedObject = {
       color: details.positive ? 'Green' : 'Red',
       title: details.action,
