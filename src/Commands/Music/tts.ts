@@ -16,6 +16,7 @@ export default {
     if (!voiceChannel) return interaction.reply({ content: 'You are not in a voice channel.' });
 
     const query: string = interaction.options.get('tts-message')?.value;
+    if (query.length > 200) return interaction.reply({ content: 'Input cannot exceed 200 characters.' });
     await playerUtilities.addResourceToTTSQueue(query);
 
     const connection = playerUtilities.getConnection();
