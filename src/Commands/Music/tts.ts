@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, Client } from 'discord.js';
 import playerUtilities from '../../Utilities/player-utilities.js';
+import voiceConnectionUtilities from '../../Utilities/voice-connection-utilities.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
 import { PlayerMode } from '../../Interfaces/player-interfaces.js';
 
@@ -19,8 +20,8 @@ export default {
     if (query.length > 200) return interaction.reply({ content: 'Input cannot exceed 200 characters.' });
     await playerUtilities.addResourceToTTSQueue(query);
 
-    const connection = playerUtilities.getConnection();
-    if (!connection) playerUtilities.connect(voiceChannel, interaction.channel);
+    const connection = voiceConnectionUtilities.getConnection();
+    if (!connection) voiceConnectionUtilities.connect(voiceChannel, interaction.channel);
 
     interaction.reply({ content: `Enqueueing ${query}` });
 

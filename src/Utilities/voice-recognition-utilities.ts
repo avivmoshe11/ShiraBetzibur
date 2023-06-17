@@ -1,0 +1,1 @@
+import Vosk from 'vosk';

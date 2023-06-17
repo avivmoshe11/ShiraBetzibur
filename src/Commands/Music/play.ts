@@ -2,6 +2,7 @@ import { SlashCommandBuilder, Client } from 'discord.js';
 import playerUtilities from '../../Utilities/player-utilities.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
 import { PlayerMode } from '../../Interfaces/player-interfaces.js';
+import voiceConnectionUtilities from '../../Utilities/voice-connection-utilities.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -22,8 +23,8 @@ export default {
     playerUtilities.addResourceToQueue(song);
     interaction.reply({ content: `Enqueued \`${song.title}\`.` });
 
-    const connection = playerUtilities.getConnection();
-    if (!connection) playerUtilities.connect(voiceChannel, interaction.channel);
+    const connection = voiceConnectionUtilities.getConnection();
+    if (!connection) voiceConnectionUtilities.connect(voiceChannel, interaction.channel);
 
     if (AudioPlayerStatus.Idle) playerUtilities.play(PlayerMode.Music);
   }

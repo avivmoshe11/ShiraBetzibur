@@ -1,16 +1,15 @@
-import { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnection, AudioResource } from '@discordjs/voice';
+import { createAudioPlayer, createAudioResource, AudioPlayerStatus, AudioResource } from '@discordjs/voice';
 import { SongQueueEntry, Song, PlayerMode } from '../Interfaces/player-interfaces.js';
 import { AdvancedEmbedObject, EmbedField } from '../Interfaces/embed-interfaces.js';
-import { TextBasedChannel, User, VoiceBasedChannel } from 'discord.js';
+import voiceConnectionUtilities from './voice-connection-utilities.js';
 import embedUtilities from './embed-utilities.js';
 import googleTTSApi from 'google-tts-api';
+import { User } from 'discord.js';
 import ytSearch from 'yt-search';
 import ytdl from 'ytdl-core';
 import axios from 'axios';
 
 class PlayerUtilities {
-  private connection: VoiceConnection | undefined;
-  private requestedChannel: TextBasedChannel | undefined;
   private player = createAudioPlayer();
   private songQueue: SongQueueEntry[];
   private ttsQueue: AudioResource[];
@@ -31,29 +30,15 @@ class PlayerUtilities {
     });
   }
 
-  /* Connection and subscription related methods to help build the voice connection.
+  /* Connection and subscription related methods to help controlling the voice connection.
      Methods:
-     - connect: Connects the client to a voiceBasedChannel and sets the channel of the text interactions regarding the connection.
-     - getConnection: Returns the current connection session.
      - subscribeAndPlay: Connection subscribes to player and plays resource.
      - getPlayerMode: Returns the current player mode.
      - destroy: Disconnects from the session, resets all session related parameters and clearing the player.
   */
-  connect(voiceChannel: VoiceBasedChannel, textChannel: TextBasedChannel): void {
-    this.connection = joinVoiceChannel({
-      channelId: voiceChannel.id,
-      guildId: voiceChannel.guildId,
-      adapterCreator: voiceChannel.guild.voiceAdapterCreator
-    });
-    this.requestedChannel = textChannel;
-  }
-
-  getConnection(): VoiceConnection | undefined {
-    return this.connection;
-  }
 
   subscribeAndPlay(resource: AudioResource): void {
-    this.connection?.subscribe(this.player);
+    voiceConnectionUtilities.getConnection()?.subscribe(this.player);
     this.player.play(resource);
   }
 
@@ -62,9 +47,7 @@ class PlayerUtilities {
   }
 
   destroy(): void {
-    this.connection?.destroy();
-    this.connection = undefined;
-    this.requestedChannel = undefined;
+    voiceConnectionUtilities.resetConnection();
     this.songQueue.splice(0);
     this.ttsQueue.splice(0);
     this.playerMode = PlayerMode.Sleep;
@@ -149,7 +132,7 @@ class PlayerUtilities {
         this.subscribeAndPlay(entry.resource);
 
         const embed = embedUtilities.createAdvancedEmbed(this.modifySongToEmbedFormat(entry));
-        this.requestedChannel?.send({ embeds: [embed] });
+        voiceConnectionUtilities.getCommunicationChannel()?.send({ embeds: [embed] });
       } else {
         this.subscribeAndPlay(entry);
       }
@@ -182,26 +165,6 @@ class PlayerUtilities {
      - formatTimeStamp: Formats seconds into 00:00:00 hours:minute:seconds format.
      - modifySongToEmbedFormat: Formats the Song object into a designed embed.
   */
-  checkCredibility(interaction: any): true | undefined {
-    const voiceChannel = interaction.member.voice.channel;
-
-    if (!voiceChannel) {
-      interaction.reply({ content: 'You are not in a voice channel.' });
-      return;
-    }
-
-    if (!this.connection) {
-      interaction.reply({ content: 'Bot is not playing anything.' });
-      return;
-    }
-
-    if (this.connection.joinConfig.channelId != voiceChannel.id) {
-      interaction.reply({ content: 'You are not in the same channel as the bot.' });
-      return;
-    }
-
-    return true;
-  }
 
   formatTimeStamp(seconds: number): string {
     const hours = Math.floor(seconds / 3600);
