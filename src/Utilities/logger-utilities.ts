@@ -5,13 +5,13 @@ import embedUtilities from './embed-utilities.js';
 import channels from '../Config/channels.js';
 
 class LoggerUtilities {
-  log(client: Client, details: EmbedObject): void {
+  public log(client: Client, details: EmbedObject): void {
     const logChannel = channels.references?.get(channels.log.id) as GuildTextBasedChannel;
 
     logChannel.send({ embeds: [embedUtilities.createEmbed(details)] });
   }
 
-  formatRoleLogger(details: RoleLogger): EmbedObject {
+  public formatRoleLogger(details: RoleLogger): EmbedObject {
     const obj: EmbedObject = {
       color: details.positive ? 'Green' : 'Red',
       title: details.action,

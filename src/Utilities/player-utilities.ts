@@ -37,16 +37,16 @@ class PlayerUtilities {
      - destroy: Disconnects from the session, resets all session related parameters and clearing the player.
   */
 
-  subscribeAndPlay(resource: AudioResource): void {
+  private subscribeAndPlay(resource: AudioResource): void {
     voiceConnectionUtilities.getConnection()?.subscribe(this.player);
     this.player.play(resource);
   }
 
-  getPlayerMode(): PlayerMode {
+  public getPlayerMode(): PlayerMode {
     return this.playerMode;
   }
 
-  destroy(): void {
+  public destroy(): void {
     voiceConnectionUtilities.resetConnection();
     this.songQueue.splice(0);
     this.ttsQueue.splice(0);
@@ -61,7 +61,7 @@ class PlayerUtilities {
      - addResourceToQueue: Builds a stream output and inserts it into SongQueue.
      - addResourceToTTSQueue: Adds a stream output to the TTSQueue.
    */
-  async getSong(query: string, user: User): Promise<Song | undefined> {
+  public async getSong(query: string, user: User): Promise<Song | undefined> {
     let song: Song | undefined;
 
     if (ytdl.validateURL(query)) {
@@ -93,20 +93,20 @@ class PlayerUtilities {
     return song;
   }
 
-  async generateTTS(input: string): Promise<any> {
+  private async generateTTS(input: string): Promise<any> {
     const hebrewRegex = /^[\u0590-\u05FF\s0-9,.?!'"():;{}\[\]\-]*$/;
     const url = googleTTSApi.getAudioUrl(input, { lang: hebrewRegex.test(input) ? 'he' : 'en', slow: false });
     const response = await axios.get(url, { responseType: 'stream' });
     return response.data;
   }
 
-  addResourceToQueue(song: Song): void {
+  public addResourceToQueue(song: Song): void {
     const stream = ytdl(song.url, { filter: 'audioonly' });
     const queueEntry: SongQueueEntry = { ...song, resource: createAudioResource(stream) };
     this.songQueue.push(queueEntry);
   }
 
-  async addResourceToTTSQueue(input: string): Promise<void> {
+  public async addResourceToTTSQueue(input: string): Promise<void> {
     const stream = await this.generateTTS(input);
     const resource = createAudioResource(stream);
     this.ttsQueue.push(resource);
@@ -119,7 +119,7 @@ class PlayerUtilities {
      - pause: Pauses the resource the player is currently playing.
      - unpause: Unpauses the resource the player is currently playing.
    */
-  async play(mode: PlayerMode): Promise<void> {
+  public async play(mode: PlayerMode): Promise<void> {
     if (this.player.state.status != AudioPlayerStatus.Idle) return;
     if (this.playerMode == PlayerMode.Sleep) this.playerMode = mode;
 
@@ -141,18 +141,18 @@ class PlayerUtilities {
     }
   }
 
-  skip(): void {
+  public skip(): void {
     this.player.stop(true);
   }
 
-  pause(): boolean {
+  public pause(): boolean {
     if (this.player.state.status == AudioPlayerStatus.Playing) {
       return this.player.pause();
     }
     return false;
   }
 
-  unpause(): boolean {
+  public unpause(): boolean {
     if (this.player.state.status == AudioPlayerStatus.Paused) {
       return this.player.unpause();
     }
@@ -166,7 +166,7 @@ class PlayerUtilities {
      - modifySongToEmbedFormat: Formats the Song object into a designed embed.
   */
 
-  formatTimeStamp(seconds: number): string {
+  private formatTimeStamp(seconds: number): string {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
@@ -174,7 +174,7 @@ class PlayerUtilities {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 
-  modifySongToEmbedFormat(details: SongQueueEntry): AdvancedEmbedObject {
+  private modifySongToEmbedFormat(details: SongQueueEntry): AdvancedEmbedObject {
     const { title, author, length, requestedBy, thumbnail, url } = details;
 
     const subObj: EmbedField[] = [

@@ -3,6 +3,7 @@ import { Client, GatewayIntentBits, Partials } from 'discord.js';
 import loadCommands from './src/Handlers/command-handler.js';
 import loadEvents from './src/Handlers/event-handler.js';
 import './src/Handlers/error-handlers.js';
+import jobUtilities from './src/Utilities/job-utilities.js';
 dotenv.config();
 
 const { Guilds, GuildMembers, GuildMessages, MessageContent, GuildScheduledEvents, GuildVoiceStates } = GatewayIntentBits;
@@ -17,5 +18,7 @@ client.login(process.env.TOKEN).then(async () => {
   await loadEvents(client);
   await loadCommands(client);
 });
+
+jobUtilities.startJobs();
 
 export default client;

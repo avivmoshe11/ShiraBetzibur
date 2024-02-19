@@ -3,12 +3,12 @@ import { EmbedBuilder } from 'discord.js';
 import config from '../Config/config.js';
 
 class EmbedUtilities {
-  createEmbed(settings: EmbedObject): EmbedBuilder {
+  public createEmbed(settings: EmbedObject): EmbedBuilder {
     const { color = '#000000', title = null, description = null, fields = [] } = settings;
     return new EmbedBuilder().setColor(color).setTitle(title).setDescription(description).addFields(fields);
   }
 
-  createAdvancedEmbed(settings: AdvancedEmbedObject): EmbedBuilder {
+  public createAdvancedEmbed(settings: AdvancedEmbedObject): EmbedBuilder {
     const { color = '#000000', author = null, title = null, thumbnail = null, url = null, description = null, fields = [] } = settings;
     return new EmbedBuilder()
       .setColor(color)

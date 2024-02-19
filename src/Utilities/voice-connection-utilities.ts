@@ -5,7 +5,7 @@ class VoiceConnectionUtilities {
   private voiceConnection: VoiceConnection | undefined;
   private communicationChannel: TextBasedChannel | undefined;
 
-  connect(voiceChannel: VoiceBasedChannel, textChannel: TextBasedChannel): void {
+  public connect(voiceChannel: VoiceBasedChannel, textChannel: TextBasedChannel): void {
     this.voiceConnection = joinVoiceChannel({
       channelId: voiceChannel.id,
       guildId: voiceChannel.guildId,
@@ -14,21 +14,21 @@ class VoiceConnectionUtilities {
     this.communicationChannel = textChannel;
   }
 
-  getCommunicationChannel(): TextBasedChannel | undefined {
+  public getCommunicationChannel(): TextBasedChannel | undefined {
     return this.communicationChannel;
   }
 
-  getConnection(): VoiceConnection | undefined {
+  public getConnection(): VoiceConnection | undefined {
     return this.voiceConnection;
   }
 
-  resetConnection(): void {
+  public resetConnection(): void {
     this.voiceConnection?.destroy();
     this.voiceConnection = undefined;
     this.communicationChannel = undefined;
   }
 
-  checkCredibility(interaction: any): true | undefined {
+  public checkCredibility(interaction: any): true | undefined {
     const voiceChannel = interaction.member.voice.channel;
 
     if (!voiceChannel) {
